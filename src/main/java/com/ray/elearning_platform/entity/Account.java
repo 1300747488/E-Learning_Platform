@@ -23,6 +23,8 @@ public class Account {
 
     private String phone; // 手机号
 
+    private String avatar; // 用户头像地址
+
     private String role; // 用户角色：ADMIN / TEACHER / STUDENT
 
     private String status; // 账号状态：ACTIVE / DISABLED / DELETED
