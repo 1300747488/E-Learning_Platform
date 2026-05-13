@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ray.elearning_platform.mapper.MaterialMapper">
+
+    <!-- Material 实体映射，对应 material 表 -->
+    <resultMap id="MaterialResultMap" type="com.ray.elearning_platform.entity.Material">
+        <id property="materialId" column="material_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="title" column="title"/>
+        <result property="materialType" column="material_type"/>
+        <result property="filePath" column="file_path"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="uploadedBy" column="uploaded_by"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <!-- 新增学习资料记录，用于资料上传后保存文件信息 -->
+    <insert id="insertMaterial"
+            parameterType="com.ray.elearning_platform.entity.Material"
+            useGeneratedKeys="true"
+            keyProperty="materialId">
+        INSERT INTO material (
+        course_id,
+        title,
+        material_type,
+        file_path,
+        file_size,
+        uploaded_by
+        )
+        VALUES (
+        #{courseId},
+        #{title},
+        #{materialType},
+        #{filePath},
+        #{fileSize},
+        #{uploadedBy}
+        )
+    </insert>
+
+    <!-- 删除学习资料记录 -->
+    <delete id="deleteMaterial">
+        DELETE FROM material
+        WHERE material_id = #{materialId}
+    </delete>
+
+    <!-- 根据资料ID查询资料实体 -->
+    <select id="selectById" resultMap="MaterialResultMap">
+        SELECT
+        material_id,
+        course_id,
+        title,
+        material_type,
+        file_path,
+        file_size,
+        uploaded_by,
+        created_at
+        FROM material
+        WHERE material_id = #{materialId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询资料详情，关联课程表和账户表获取课程名称、上传者姓名 -->
+    <select id="selectMaterialDetail" resultType="com.ray.elearning_platform.resp.MaterialDetailResp">
+        SELECT
+        m.material_id,
+        m.course_id,
+        c.title AS course_title,
+        m.title,
+        m.material_type,
+        m.file_path,
+        m.file_size,
+        m.uploaded_by,
+        a.full_name AS uploader_name,
+        m.created_at
+        FROM material m
+        LEFT JOIN course c ON m.course_id = c.course_id
+        LEFT JOIN account a ON m.uploaded_by = a.account_id
+        WHERE m.material_id = #{materialId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询资料列表，支持按课程、资料类型和关键词筛选 -->
+    <select id="selectMaterialList" resultType="com.ray.elearning_platform.resp.MaterialListResp">
+        SELECT
+        m.material_id,
+        m.course_id,
+        c.title AS course_title,
+        m.title,
+        m.material_type,
+        m.file_path,
+        m.file_size,
+        m.uploaded_by,
+        a.full_name AS uploader_name,
+        m.created_at
+        FROM material m
+        LEFT JOIN course c ON m.course_id = c.course_id
+        LEFT JOIN account a ON m.uploaded_by = a.account_id
+        WHERE 1 = 1
+
+        <if test="courseId != null">
+            AND m.course_id = #{courseId}
+        </if>
+
+        <if test="materialType != null and materialType != ''">
+            AND m.material_type = #{materialType}
+        </if>
+
+        <if test="keyword != null and keyword != ''">
+            AND m.title LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+
+        ORDER BY m.created_at DESC
+    </select>
+
+</mapper>

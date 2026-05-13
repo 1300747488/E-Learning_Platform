@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ray.elearning_platform.mapper.QuizAttemptMapper">
+
+    <!-- QuizAttempt 实体映射，对应 quiz_attempt 表 -->
+    <resultMap id="QuizAttemptResultMap" type="com.ray.elearning_platform.entity.QuizAttempt">
+        <id property="attemptId" column="attempt_id"/>
+        <result property="quizId" column="quiz_id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="score" column="score"/>
+        <result property="totalMarks" column="total_marks"/>
+        <result property="correctCount" column="correct_count"/>
+        <result property="wrongCount" column="wrong_count"/>
+        <result property="submittedAt" column="submitted_at"/>
+        <result property="durationSeconds" column="duration_seconds"/>
+    </resultMap>
+
+    <!-- 新增测验提交记录，学生提交测验后生成 -->
+    <insert id="insertAttempt"
+            parameterType="com.ray.elearning_platform.entity.QuizAttempt"
+            useGeneratedKeys="true"
+            keyProperty="attemptId">
+        INSERT INTO quiz_attempt (
+        quiz_id,
+        student_id,
+        score,
+        total_marks,
+        correct_count,
+        wrong_count,
+        submitted_at,
+        duration_seconds
+        )
+        VALUES (
+        #{quizId},
+        #{studentId},
+        #{score},
+        #{totalMarks},
+        #{correctCount},
+        #{wrongCount},
+        #{submittedAt},
+        #{durationSeconds}
+        )
+    </insert>
+
+    <!-- 根据提交记录ID查询提交记录实体 -->
+    <select id="selectById" resultMap="QuizAttemptResultMap">
+        SELECT
+        attempt_id,
+        quiz_id,
+        student_id,
+        score,
+        total_marks,
+        correct_count,
+        wrong_count,
+        submitted_at,
+        duration_seconds
+        FROM quiz_attempt
+        WHERE attempt_id = #{attemptId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询测验结果主体信息，答案详情由 StudentAnswerMapper 查询后组装 -->
+    <select id="selectQuizResult" resultType="com.ray.elearning_platform.resp.QuizResultResp">
+        SELECT
+        qa.attempt_id,
+        qa.quiz_id,
+        q.title AS quiz_title,
+        qa.student_id,
+        a.full_name AS student_name,
+        qa.score,
+        qa.total_marks,
+        qa.correct_count,
+        qa.wrong_count,
+        qa.submitted_at,
+        qa.duration_seconds
+        FROM quiz_attempt qa
+        LEFT JOIN quiz q ON qa.quiz_id = q.quiz_id
+        LEFT JOIN account a ON qa.student_id = a.account_id
+        WHERE qa.attempt_id = #{attemptId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询某个学生的历史测验记录 -->
+    <select id="selectHistoryByStudentId" resultType="com.ray.elearning_platform.resp.QuizHistoryResp">
+        SELECT
+        qa.attempt_id,
+        qa.quiz_id,
+        q.title AS quiz_title,
+        c.course_id,
+        c.title AS course_title,
+        qa.score,
+        qa.total_marks,
+        qa.submitted_at,
+        qa.duration_seconds
+        FROM quiz_attempt qa
+        LEFT JOIN quiz q ON qa.quiz_id = q.quiz_id
+        LEFT JOIN course c ON q.course_id = c.course_id
+        WHERE qa.student_id = #{studentId}
+        ORDER BY qa.submitted_at DESC
+    </select>
+
+    <!-- 查询某个测验的所有提交记录 -->
+    <select id="selectByQuizId" resultMap="QuizAttemptResultMap">
+        SELECT
+        attempt_id,
+        quiz_id,
+        student_id,
+        score,
+        total_marks,
+        correct_count,
+        wrong_count,
+        submitted_at,
+        duration_seconds
+        FROM quiz_attempt
+        WHERE quiz_id = #{quizId}
+        ORDER BY submitted_at DESC
+    </select>
+
+</mapper>

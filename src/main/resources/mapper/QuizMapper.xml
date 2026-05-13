@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ray.elearning_platform.mapper.QuizMapper">
+
+    <!-- Quiz 实体映射，对应 quiz 表 -->
+    <resultMap id="QuizResultMap" type="com.ray.elearning_platform.entity.Quiz">
+        <id property="quizId" column="quiz_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="timeLimit" column="time_limit"/>
+        <result property="totalMarks" column="total_marks"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="status" column="status"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 新增测验，默认可由教师创建 -->
+    <insert id="insertQuiz"
+            parameterType="com.ray.elearning_platform.entity.Quiz"
+            useGeneratedKeys="true"
+            keyProperty="quizId">
+        INSERT INTO quiz (
+        course_id,
+        title,
+        description,
+        time_limit,
+        total_marks,
+        start_time,
+        end_time,
+        status,
+        created_by
+        )
+        VALUES (
+        #{courseId},
+        #{title},
+        #{description},
+        #{timeLimit},
+        #{totalMarks},
+        #{startTime},
+        #{endTime},
+        #{status},
+        #{createdBy}
+        )
+    </insert>
+
+    <!-- 修改测验信息 -->
+    <update id="updateQuiz" parameterType="com.ray.elearning_platform.entity.Quiz">
+        UPDATE quiz
+        SET
+        title = #{title},
+        description = #{description},
+        time_limit = #{timeLimit},
+        total_marks = #{totalMarks},
+        start_time = #{startTime},
+        end_time = #{endTime},
+        status = #{status},
+        updated_at = NOW()
+        WHERE quiz_id = #{quizId}
+    </update>
+
+    <!-- 修改测验状态，例如发布或关闭测验 -->
+    <update id="updateStatus">
+        UPDATE quiz
+        SET
+        status = #{status},
+        updated_at = NOW()
+        WHERE quiz_id = #{quizId}
+    </update>
+
+    <!-- 删除测验 -->
+    <delete id="deleteQuiz">
+        DELETE FROM quiz
+        WHERE quiz_id = #{quizId}
+    </delete>
+
+    <!-- 根据测验ID查询测验实体 -->
+    <select id="selectById" resultMap="QuizResultMap">
+        SELECT
+        quiz_id,
+        course_id,
+        title,
+        description,
+        time_limit,
+        total_marks,
+        start_time,
+        end_time,
+        status,
+        created_by,
+        created_at,
+        updated_at
+        FROM quiz
+        WHERE quiz_id = #{quizId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询测验详情，关联课程表和账户表获取课程名称、创建者姓名 -->
+    <select id="selectQuizDetail" resultType="com.ray.elearning_platform.resp.QuizDetailResp">
+        SELECT
+        q.quiz_id,
+        q.course_id,
+        c.title AS course_title,
+        q.title,
+        q.description,
+        q.time_limit,
+        q.total_marks,
+        q.start_time,
+        q.end_time,
+        q.status,
+        q.created_by,
+        a.full_name AS creator_name,
+        q.created_at,
+        q.updated_at
+        FROM quiz q
+        LEFT JOIN course c ON q.course_id = c.course_id
+        LEFT JOIN account a ON q.created_by = a.account_id
+        WHERE q.quiz_id = #{quizId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询测验列表，支持按课程ID和测验状态筛选 -->
+    <select id="selectQuizList" resultType="com.ray.elearning_platform.resp.QuizListResp">
+        SELECT
+        q.quiz_id,
+        q.course_id,
+        c.title AS course_title,
+        q.title,
+        q.time_limit,
+        q.total_marks,
+        q.start_time,
+        q.end_time,
+        q.status,
+        q.created_by,
+        a.full_name AS creator_name
+        FROM quiz q
+        LEFT JOIN course c ON q.course_id = c.course_id
+        LEFT JOIN account a ON q.created_by = a.account_id
+        WHERE 1 = 1
+
+        <if test="courseId != null">
+            AND q.course_id = #{courseId}
+        </if>
+
+        <if test="status != null and status != ''">
+            AND q.status = #{status}
+        </if>
+
+        ORDER BY q.created_at DESC
+    </select>
+
+</mapper>

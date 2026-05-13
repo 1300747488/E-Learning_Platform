@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ray.elearning_platform.mapper.QuestionMapper">
+
+    <!-- Question 实体映射，对应 question 表 -->
+    <resultMap id="QuestionResultMap" type="com.ray.elearning_platform.entity.Question">
+        <id property="questionId" column="question_id"/>
+        <result property="quizId" column="quiz_id"/>
+        <result property="questionText" column="question_text"/>
+        <result property="optionA" column="option_a"/>
+        <result property="optionB" column="option_b"/>
+        <result property="optionC" column="option_c"/>
+        <result property="optionD" column="option_d"/>
+        <result property="correctOption" column="correct_option"/>
+        <result property="marks" column="marks"/>
+        <result property="topic" column="topic"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 新增题目，教师为指定测验添加选择题 -->
+    <insert id="insertQuestion"
+            parameterType="com.ray.elearning_platform.entity.Question"
+            useGeneratedKeys="true"
+            keyProperty="questionId">
+        INSERT INTO question (
+        quiz_id,
+        question_text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_option,
+        marks,
+        topic
+        )
+        VALUES (
+        #{quizId},
+        #{questionText},
+        #{optionA},
+        #{optionB},
+        #{optionC},
+        #{optionD},
+        #{correctOption},
+        #{marks},
+        #{topic}
+        )
+    </insert>
+
+    <!-- 修改题目信息 -->
+    <update id="updateQuestion" parameterType="com.ray.elearning_platform.entity.Question">
+        UPDATE question
+        SET
+        question_text = #{questionText},
+        option_a = #{optionA},
+        option_b = #{optionB},
+        option_c = #{optionC},
+        option_d = #{optionD},
+        correct_option = #{correctOption},
+        marks = #{marks},
+        topic = #{topic},
+        updated_at = NOW()
+        WHERE question_id = #{questionId}
+    </update>
+
+    <!-- 删除题目 -->
+    <delete id="deleteQuestion">
+        DELETE FROM question
+        WHERE question_id = #{questionId}
+    </delete>
+
+    <!-- 根据题目ID查询题目实体，自动评分时需要 correct_option -->
+    <select id="selectById" resultMap="QuestionResultMap">
+        SELECT
+        question_id,
+        quiz_id,
+        question_text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_option,
+        marks,
+        topic,
+        created_at,
+        updated_at
+        FROM question
+        WHERE question_id = #{questionId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询题目详情，教师端可查看正确答案 -->
+    <select id="selectQuestionDetail" resultType="com.ray.elearning_platform.resp.QuestionDetailResp">
+        SELECT
+        question_id,
+        quiz_id,
+        question_text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_option,
+        marks,
+        topic,
+        created_at,
+        updated_at
+        FROM question
+        WHERE question_id = #{questionId}
+        LIMIT 1
+    </select>
+
+    <!-- 教师端查询题目列表，包含 correct_option -->
+    <select id="selectQuestionList" resultType="com.ray.elearning_platform.resp.QuestionListResp">
+        SELECT
+        question_id,
+        quiz_id,
+        question_text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_option,
+        marks,
+        topic
+        FROM question
+        WHERE quiz_id = #{quizId}
+        ORDER BY question_id ASC
+    </select>
+
+    <!-- 学生端查询题目列表，不返回 correct_option，防止泄露正确答案 -->
+    <select id="selectStudentQuestionList" resultType="com.ray.elearning_platform.resp.StudentQuestionResp">
+        SELECT
+        question_id,
+        quiz_id,
+        question_text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        marks,
+        topic
+        FROM question
+        WHERE quiz_id = #{quizId}
+        ORDER BY question_id ASC
+    </select>
+
+    <!-- 根据测验ID查询题目实体列表，自动评分时使用 -->
+    <select id="selectByQuizId" resultMap="QuestionResultMap">
+        SELECT
+        question_id,
+        quiz_id,
+        question_text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_option,
+        marks,
+        topic,
+        created_at,
+        updated_at
+        FROM question
+        WHERE quiz_id = #{quizId}
+        ORDER BY question_id ASC
+    </select>
+
+</mapper>

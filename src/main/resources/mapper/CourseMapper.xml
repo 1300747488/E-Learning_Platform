@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ray.elearning_platform.mapper.CourseMapper">
+
+    <!-- Course 实体映射，对应 course 表 -->
+    <resultMap id="CourseResultMap" type="com.ray.elearning_platform.entity.Course">
+        <id property="courseId" column="course_id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="category" column="category"/>
+        <result property="teacherId" column="teacher_id"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 新增课程，由教师创建课程 -->
+    <insert id="insertCourse"
+            parameterType="com.ray.elearning_platform.entity.Course"
+            useGeneratedKeys="true"
+            keyProperty="courseId">
+        INSERT INTO course (
+        title,
+        description,
+        category,
+        teacher_id,
+        status
+        )
+        VALUES (
+        #{title},
+        #{description},
+        #{category},
+        #{teacherId},
+        #{status}
+        )
+    </insert>
+
+    <!-- 修改课程信息 -->
+    <update id="updateCourse" parameterType="com.ray.elearning_platform.entity.Course">
+        UPDATE course
+        SET
+        title = #{title},
+        description = #{description},
+        category = #{category},
+        status = #{status},
+        updated_at = NOW()
+        WHERE course_id = #{courseId}
+    </update>
+
+    <!-- 删除课程，根据课程ID删除 -->
+    <delete id="deleteCourse">
+        DELETE FROM course
+        WHERE course_id = #{courseId}
+    </delete>
+
+    <!-- 根据课程ID查询课程实体 -->
+    <select id="selectById" resultMap="CourseResultMap">
+        SELECT
+        course_id,
+        title,
+        description,
+        category,
+        teacher_id,
+        status,
+        created_at,
+        updated_at
+        FROM course
+        WHERE course_id = #{courseId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询课程详情，关联 account 表获取教师姓名 -->
+    <select id="selectCourseDetail" resultType="com.ray.elearning_platform.resp.CourseDetailResp">
+        SELECT
+        c.course_id,
+        c.title,
+        c.description,
+        c.category,
+        c.teacher_id,
+        a.full_name AS teacher_name,
+        c.status,
+        c.created_at,
+        c.updated_at
+        FROM course c
+        LEFT JOIN account a ON c.teacher_id = a.account_id
+        WHERE c.course_id = #{courseId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询课程列表，支持按分类和关键词筛选 -->
+    <select id="selectCourseList" resultType="com.ray.elearning_platform.resp.CourseListResp">
+        SELECT
+        c.course_id,
+        c.title,
+        c.category,
+        c.teacher_id,
+        a.full_name AS teacher_name,
+        c.status,
+        c.created_at
+        FROM course c
+        LEFT JOIN account a ON c.teacher_id = a.account_id
+        WHERE 1 = 1
+
+        <if test="category != null and category != ''">
+            AND c.category = #{category}
+        </if>
+
+        <if test="keyword != null and keyword != ''">
+            AND (
+            c.title LIKE CONCAT('%', #{keyword}, '%')
+            OR c.description LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+
+        ORDER BY c.created_at DESC
+    </select>
+
+    <!-- 根据教师ID查询该教师创建的课程 -->
+    <select id="selectByTeacherId" resultMap="CourseResultMap">
+        SELECT
+        course_id,
+        title,
+        description,
+        category,
+        teacher_id,
+        status,
+        created_at,
+        updated_at
+        FROM course
+        WHERE teacher_id = #{teacherId}
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>

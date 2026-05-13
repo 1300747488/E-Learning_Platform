@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!-- MyBatis 全局设置 -->
+    <settings>
+
+        <!-- 开启下划线转驼峰映射
+             例如：account_id -> accountId
+                  created_at -> createdAt
+        -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+
+        <!-- 开启控制台 SQL 日志，开发阶段方便查看 SQL -->
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+
+    </settings>
+
+    <!-- 实体类别名配置
+         配置后 XML 中可以直接写 Account、Course 等类名
+         不一定每个地方都要写 com.ray.elearning_platform.entity.Account
+    -->
+    <typeAliases>
+        <package name="com.ray.elearning_platform.entity"/>
+    </typeAliases>
+
+</configuration>

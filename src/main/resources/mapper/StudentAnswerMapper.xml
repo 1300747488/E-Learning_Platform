@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ray.elearning_platform.mapper.StudentAnswerMapper">
+
+    <!-- StudentAnswer 实体映射，对应 student_answer 表 -->
+    <resultMap id="StudentAnswerResultMap" type="com.ray.elearning_platform.entity.StudentAnswer">
+        <id property="answerId" column="answer_id"/>
+        <result property="attemptId" column="attempt_id"/>
+        <result property="questionId" column="question_id"/>
+        <result property="selectedOption" column="selected_option"/>
+        <result property="isCorrect" column="is_correct"/>
+        <result property="awardedMarks" column="awarded_marks"/>
+    </resultMap>
+
+    <!-- 新增单条学生答案记录 -->
+    <insert id="insertStudentAnswer"
+            parameterType="com.ray.elearning_platform.entity.StudentAnswer"
+            useGeneratedKeys="true"
+            keyProperty="answerId">
+        INSERT INTO student_answer (
+        attempt_id,
+        question_id,
+        selected_option,
+        is_correct,
+        awarded_marks
+        )
+        VALUES (
+        #{attemptId},
+        #{questionId},
+        #{selectedOption},
+        #{isCorrect},
+        #{awardedMarks}
+        )
+    </insert>
+
+    <!-- 批量保存学生答案记录，提高提交测验时的插入效率 -->
+    <insert id="batchInsertStudentAnswer">
+        INSERT INTO student_answer (
+        attempt_id,
+        question_id,
+        selected_option,
+        is_correct,
+        awarded_marks
+        )
+        VALUES
+        <foreach collection="answerList" item="item" separator=",">
+            (
+            #{item.attemptId},
+            #{item.questionId},
+            #{item.selectedOption},
+            #{item.isCorrect},
+            #{item.awardedMarks}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 根据提交记录ID查询学生所有答题详情 -->
+    <select id="selectByAttemptId" resultMap="StudentAnswerResultMap">
+        SELECT
+        answer_id,
+        attempt_id,
+        question_id,
+        selected_option,
+        is_correct,
+        awarded_marks
+        FROM student_answer
+        WHERE attempt_id = #{attemptId}
+        ORDER BY answer_id ASC
+    </select>
+
+    <!-- 查询测验结果中的每道题详情，包括题干、学生答案、正确答案和得分 -->
+    <select id="selectAnswerResultByAttemptId"
+            resultType="com.ray.elearning_platform.resp.QuizResultResp$AnswerResult">
+        SELECT
+        q.question_id,
+        q.question_text,
+        sa.selected_option,
+        q.correct_option,
+        sa.is_correct,
+        sa.awarded_marks,
+        q.marks
+        FROM student_answer sa
+        LEFT JOIN question q ON sa.question_id = q.question_id
+        WHERE sa.attempt_id = #{attemptId}
+        ORDER BY q.question_id ASC
+    </select>
+
+</mapper>

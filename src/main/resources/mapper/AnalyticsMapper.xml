@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ray.elearning_platform.mapper.AnalyticsMapper">
+
+    <!-- 查询学生成绩概览，包括测验次数、平均分、最高分、最低分和通过率 -->
+    <select id="selectStudentSummary" resultType="com.ray.elearning_platform.resp.StudentSummaryResp">
+        SELECT
+        qa.student_id,
+        a.full_name AS student_name,
+        COUNT(*) AS total_attempts,
+        ROUND(AVG(qa.score), 2) AS average_score,
+        MAX(qa.score) AS highest_score,
+        MIN(qa.score) AS lowest_score,
+        ROUND(
+        SUM(CASE WHEN qa.score >= qa.total_marks * 0.6 THEN 1 ELSE 0 END) / COUNT(*),
+        2
+        ) AS pass_rate
+        FROM quiz_attempt qa
+        LEFT JOIN account a ON qa.student_id = a.account_id
+        LEFT JOIN quiz q ON qa.quiz_id = q.quiz_id
+        WHERE qa.student_id = #{studentId}
+
+        <if test="courseId != null">
+            AND q.course_id = #{courseId}
+        </if>
+
+        GROUP BY qa.student_id, a.full_name
+    </select>
+
+    <!-- 查询学生成绩趋势，按提交时间升序排列 -->
+    <select id="selectStudentProgress" resultType="com.ray.elearning_platform.resp.StudentProgressResp">
+        SELECT
+        q.quiz_id,
+        q.title AS quiz_title,
+        c.course_id,
+        c.title AS course_title,
+        qa.score,
+        qa.total_marks,
+        qa.submitted_at
+        FROM quiz_attempt qa
+        LEFT JOIN quiz q ON qa.quiz_id = q.quiz_id
+        LEFT JOIN course c ON q.course_id = c.course_id
+        WHERE qa.student_id = #{studentId}
+
+        <if test="courseId != null">
+            AND c.course_id = #{courseId}
+        </if>
+
+        ORDER BY qa.submitted_at ASC
+    </select>
+
+    <!-- 查询学生薄弱知识点，根据 topic 分组统计正确率 -->
+    <select id="selectWeakTopic" resultType="com.ray.elearning_platform.resp.WeakTopicResp">
+        SELECT
+        q.topic,
+        COUNT(*) AS total_count,
+        SUM(CASE WHEN sa.is_correct = 0 THEN 1 ELSE 0 END) AS wrong_count,
+        ROUND(
+        SUM(CASE WHEN sa.is_correct = 1 THEN 1 ELSE 0 END) / COUNT(*),
+        2
+        ) AS accuracy
+        FROM student_answer sa
+        LEFT JOIN question q ON sa.question_id = q.question_id
+        LEFT JOIN quiz_attempt qa ON sa.attempt_id = qa.attempt_id
+        LEFT JOIN quiz z ON qa.quiz_id = z.quiz_id
+        WHERE qa.student_id = #{studentId}
+
+        <if test="courseId != null">
+            AND z.course_id = #{courseId}
+        </if>
+
+        GROUP BY q.topic
+        ORDER BY accuracy ASC
+    </select>
+
+    <!-- 查询排行榜，支持按课程ID或测验ID筛选 -->
+    <select id="selectLeaderboard" resultType="com.ray.elearning_platform.resp.LeaderboardResp">
+        SELECT
+        (@rank := @rank + 1) AS rank,
+        t.student_id,
+        t.student_name,
+        t.avatar,
+        t.score,
+        t.average_score,
+        t.total_attempts
+        FROM (
+        SELECT
+        qa.student_id,
+        a.full_name AS student_name,
+        a.avatar,
+        MAX(qa.score) AS score,
+        ROUND(AVG(qa.score), 2) AS average_score,
+        COUNT(*) AS total_attempts
+        FROM quiz_attempt qa
+        LEFT JOIN account a ON qa.student_id = a.account_id
+        LEFT JOIN quiz q ON qa.quiz_id = q.quiz_id
+        WHERE 1 = 1
+
+        <if test="courseId != null">
+            AND q.course_id = #{courseId}
+        </if>
+
+        <if test="quizId != null">
+            AND qa.quiz_id = #{quizId}
+        </if>
+
+        GROUP BY qa.student_id, a.full_name, a.avatar
+        ORDER BY average_score DESC
+        ) t, (SELECT @rank := 0) r
+    </select>
+
+    <!-- 教师查询课程成绩，支持按课程ID和测验ID筛选 -->
+    <select id="selectTeacherCourseScore" resultType="com.ray.elearning_platform.resp.TeacherCourseScoreResp">
+        SELECT
+        c.course_id,
+        c.title AS course_title,
+        q.quiz_id,
+        q.title AS quiz_title,
+        qa.student_id,
+        a.full_name AS student_name,
+        qa.score,
+        qa.total_marks,
+        qa.submitted_at
+        FROM quiz_attempt qa
+        LEFT JOIN quiz q ON qa.quiz_id = q.quiz_id
+        LEFT JOIN course c ON q.course_id = c.course_id
+        LEFT JOIN account a ON qa.student_id = a.account_id
+        WHERE c.teacher_id = #{teacherId}
+
+        <if test="courseId != null">
+            AND c.course_id = #{courseId}
+        </if>
+
+        <if test="quizId != null">
+            AND q.quiz_id = #{quizId}
+        </if>
+
+        ORDER BY qa.submitted_at DESC
+    </select>
+
+</mapper>
