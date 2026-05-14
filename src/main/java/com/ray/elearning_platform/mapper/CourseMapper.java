@@ -27,6 +27,12 @@ public interface CourseMapper {
     // 查询课程列表
     List<CourseListResp> selectCourseList(@Param("category") String category,
                                           @Param("keyword") String keyword);
+
+    // 学生端查询课程列表，包含是否已加入
+    List<CourseListResp> selectCourseListForStudent(@Param("studentId") Integer studentId,
+                                                    @Param("category") String category,
+                                                    @Param("keyword") String keyword);
+
     // 查询教师创建的课程
     List<Course> selectByTeacherId(@Param("teacherId") Integer teacherId);
 }

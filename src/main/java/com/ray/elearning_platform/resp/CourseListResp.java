@@ -24,4 +24,8 @@ public class CourseListResp {
     private String status; // 课程状态
 
     private LocalDateTime createdAt; // 创建时间
+
+    private Integer studentCount; // 已加入学生数
+
+    private Boolean joined; // 当前学生是否已加入
 }

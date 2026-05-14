@@ -9,12 +9,16 @@
     <resultMap id="QuestionResultMap" type="com.ray.elearning_platform.entity.Question">
         <id property="questionId" column="question_id"/>
         <result property="quizId" column="quiz_id"/>
+        <result property="questionType" column="question_type"/>
         <result property="questionText" column="question_text"/>
+        <result property="questionImage" column="question_image"/>
         <result property="optionA" column="option_a"/>
         <result property="optionB" column="option_b"/>
         <result property="optionC" column="option_c"/>
         <result property="optionD" column="option_d"/>
         <result property="correctOption" column="correct_option"/>
+        <result property="referenceAnswer" column="reference_answer"/>
+        <result property="explanation" column="explanation"/>
         <result property="marks" column="marks"/>
         <result property="topic" column="topic"/>
         <result property="createdAt" column="created_at"/>
@@ -28,23 +32,31 @@
             keyProperty="questionId">
         INSERT INTO question (
         quiz_id,
+        question_type,
         question_text,
+        question_image,
         option_a,
         option_b,
         option_c,
         option_d,
         correct_option,
+        reference_answer,
+        explanation,
         marks,
         topic
         )
         VALUES (
         #{quizId},
+        #{questionType},
         #{questionText},
+        #{questionImage},
         #{optionA},
         #{optionB},
         #{optionC},
         #{optionD},
         #{correctOption},
+        #{referenceAnswer},
+        #{explanation},
         #{marks},
         #{topic}
         )
@@ -54,12 +66,16 @@
     <update id="updateQuestion" parameterType="com.ray.elearning_platform.entity.Question">
         UPDATE question
         SET
+        question_type = #{questionType},
         question_text = #{questionText},
+        question_image = #{questionImage},
         option_a = #{optionA},
         option_b = #{optionB},
         option_c = #{optionC},
         option_d = #{optionD},
         correct_option = #{correctOption},
+        reference_answer = #{referenceAnswer},
+        explanation = #{explanation},
         marks = #{marks},
         topic = #{topic},
         updated_at = NOW()
@@ -77,12 +93,16 @@
         SELECT
         question_id,
         quiz_id,
+        question_type,
         question_text,
+        question_image,
         option_a,
         option_b,
         option_c,
         option_d,
         correct_option,
+        reference_answer,
+        explanation,
         marks,
         topic,
         created_at,
@@ -97,12 +117,16 @@
         SELECT
         question_id,
         quiz_id,
+        question_type,
         question_text,
+        question_image,
         option_a,
         option_b,
         option_c,
         option_d,
         correct_option,
+        reference_answer,
+        explanation,
         marks,
         topic,
         created_at,
@@ -117,12 +141,16 @@
         SELECT
         question_id,
         quiz_id,
+        question_type,
         question_text,
+        question_image,
         option_a,
         option_b,
         option_c,
         option_d,
         correct_option,
+        reference_answer,
+        explanation,
         marks,
         topic
         FROM question
@@ -130,21 +158,46 @@
         ORDER BY question_id ASC
     </select>
 
-    <!-- 学生端查询题目列表，不返回 correct_option，防止泄露正确答案 -->
+    <!-- 学生端查询题目列表，作答中回显已保存答案，提交或截止后返回 correct_option 和 explanation -->
     <select id="selectStudentQuestionList" resultType="com.ray.elearning_platform.resp.StudentQuestionResp">
         SELECT
-        question_id,
-        quiz_id,
-        question_text,
-        option_a,
-        option_b,
-        option_c,
-        option_d,
-        marks,
-        topic
-        FROM question
-        WHERE quiz_id = #{quizId}
-        ORDER BY question_id ASC
+        q.question_id,
+        q.quiz_id,
+        q.question_type,
+        q.question_text,
+        q.question_image,
+        q.option_a,
+        q.option_b,
+        q.option_c,
+        q.option_d,
+        sa.selected_option,
+        sa.answer_text,
+        sa.answer_image,
+        COALESCE(sa.answer_status, 'UNANSWERED') AS answer_status,
+        <choose>
+            <when test="showAnswer != null and showAnswer">
+                q.correct_option,
+                q.reference_answer,
+                q.explanation,
+                sa.is_correct,
+                sa.awarded_marks,
+            </when>
+            <otherwise>
+                NULL AS correct_option,
+                NULL AS reference_answer,
+                NULL AS explanation,
+                NULL AS is_correct,
+                NULL AS awarded_marks,
+            </otherwise>
+        </choose>
+        q.marks,
+        q.topic
+        FROM question q
+        LEFT JOIN student_answer sa
+        ON sa.question_id = q.question_id
+        AND sa.attempt_id = #{attemptId}
+        WHERE q.quiz_id = #{quizId}
+        ORDER BY q.question_id ASC
     </select>
 
     <!-- 根据测验ID查询题目实体列表，自动评分时使用 -->
@@ -152,12 +205,16 @@
         SELECT
         question_id,
         quiz_id,
+        question_type,
         question_text,
+        question_image,
         option_a,
         option_b,
         option_c,
         option_d,
         correct_option,
+        reference_answer,
+        explanation,
         marks,
         topic,
         created_at,

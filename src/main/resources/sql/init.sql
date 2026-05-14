@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS quiz_attempt;
 DROP TABLE IF EXISTS question;
 DROP TABLE IF EXISTS quiz;
 DROP TABLE IF EXISTS material;
+DROP TABLE IF EXISTS course_enrollment;
 DROP TABLE IF EXISTS course;
 DROP TABLE IF EXISTS account;
 
@@ -45,7 +46,28 @@ CREATE TABLE course (
                                 REFERENCES account(account_id)
 ) COMMENT='课程表';
 
--- 3. 学习资料表
+-- 3. 课程选课表
+CREATE TABLE course_enrollment (
+                                   enrollment_id INT PRIMARY KEY AUTO_INCREMENT COMMENT '选课记录ID',
+                                   course_id INT NOT NULL COMMENT '课程ID',
+                                   student_id INT NOT NULL COMMENT '学生ID',
+                                   status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '选课状态：ACTIVE / LEFT',
+                                   enrolled_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '加入课程时间',
+                                   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+
+                                   CONSTRAINT uk_course_enrollment_course_student
+                                       UNIQUE (course_id, student_id),
+
+                                   CONSTRAINT fk_enrollment_course
+                                       FOREIGN KEY (course_id)
+                                           REFERENCES course(course_id),
+
+                                   CONSTRAINT fk_enrollment_student
+                                       FOREIGN KEY (student_id)
+                                           REFERENCES account(account_id)
+) COMMENT='课程选课表';
+
+-- 4. 学习资料表
 CREATE TABLE material (
                           material_id INT PRIMARY KEY AUTO_INCREMENT COMMENT '资料ID',
                           course_id INT NOT NULL COMMENT '课程ID',
@@ -65,7 +87,7 @@ CREATE TABLE material (
                                   REFERENCES account(account_id)
 ) COMMENT='学习资料表';
 
--- 4. 测验表
+-- 5. 测验表
 CREATE TABLE quiz (
                       quiz_id INT PRIMARY KEY AUTO_INCREMENT COMMENT '测验ID',
                       course_id INT NOT NULL COMMENT '课程ID',
@@ -89,16 +111,20 @@ CREATE TABLE quiz (
                               REFERENCES account(account_id)
 ) COMMENT='测验表';
 
--- 5. 题目表
+-- 6. 题目表
 CREATE TABLE question (
                           question_id INT PRIMARY KEY AUTO_INCREMENT COMMENT '题目ID',
                           quiz_id INT NOT NULL COMMENT '测验ID',
+                          question_type VARCHAR(20) NOT NULL DEFAULT 'SINGLE_CHOICE' COMMENT '题型：SINGLE_CHOICE / FILL_BLANK / SHORT_ANSWER',
                           question_text TEXT NOT NULL COMMENT '题干',
-                          option_a VARCHAR(255) NOT NULL COMMENT '选项A',
-                          option_b VARCHAR(255) NOT NULL COMMENT '选项B',
-                          option_c VARCHAR(255) NOT NULL COMMENT '选项C',
-                          option_d VARCHAR(255) NOT NULL COMMENT '选项D',
-                          correct_option VARCHAR(5) NOT NULL COMMENT '正确答案：A / B / C / D',
+                          question_image VARCHAR(255) COMMENT '题干图片地址',
+                          option_a VARCHAR(255) COMMENT '选项A',
+                          option_b VARCHAR(255) COMMENT '选项B',
+                          option_c VARCHAR(255) COMMENT '选项C',
+                          option_d VARCHAR(255) COMMENT '选项D',
+                          correct_option VARCHAR(5) COMMENT '选择题正确答案：A / B / C / D',
+                          reference_answer TEXT COMMENT '填空题或解答题参考答案',
+                          explanation TEXT COMMENT '题目解析',
                           marks INT NOT NULL DEFAULT 0 COMMENT '题目分值',
                           topic VARCHAR(100) COMMENT '知识点',
                           created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -109,7 +135,7 @@ CREATE TABLE question (
                                   REFERENCES quiz(quiz_id)
 ) COMMENT='题目表';
 
--- 6. 测验提交记录表
+-- 7. 测验提交记录表
 CREATE TABLE quiz_attempt (
                               attempt_id INT PRIMARY KEY AUTO_INCREMENT COMMENT '提交记录ID',
                               quiz_id INT NOT NULL COMMENT '测验ID',
@@ -118,7 +144,9 @@ CREATE TABLE quiz_attempt (
                               total_marks INT NOT NULL DEFAULT 0 COMMENT '测验总分',
                               correct_count INT NOT NULL DEFAULT 0 COMMENT '答对题数',
                               wrong_count INT NOT NULL DEFAULT 0 COMMENT '答错题数',
-                              submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '提交时间',
+                              status VARCHAR(20) NOT NULL DEFAULT 'IN_PROGRESS' COMMENT '作答状态：IN_PROGRESS / SUBMITTED',
+                              started_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '开始作答时间',
+                              submitted_at DATETIME COMMENT '提交时间',
                               duration_seconds INT COMMENT '答题用时，单位秒',
 
                               CONSTRAINT fk_attempt_quiz
@@ -130,14 +158,20 @@ CREATE TABLE quiz_attempt (
                                       REFERENCES account(account_id)
 ) COMMENT='测验提交记录表';
 
--- 7. 学生答案表
+-- 8. 学生答案表
 CREATE TABLE student_answer (
                                 answer_id INT PRIMARY KEY AUTO_INCREMENT COMMENT '答案记录ID',
                                 attempt_id INT NOT NULL COMMENT '提交记录ID',
                                 question_id INT NOT NULL COMMENT '题目ID',
                                 selected_option VARCHAR(5) COMMENT '学生选择的答案',
+                                answer_text TEXT COMMENT '填空题或解答题答案',
+                                answer_image VARCHAR(255) COMMENT '解答题图片答案地址',
+                                answer_status VARCHAR(20) NOT NULL DEFAULT 'UNANSWERED' COMMENT '作答状态：ANSWERED / UNANSWERED',
                                 is_correct TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否答对：1正确，0错误',
                                 awarded_marks INT NOT NULL DEFAULT 0 COMMENT '本题得分',
+
+                                CONSTRAINT uk_answer_attempt_question
+                                    UNIQUE (attempt_id, question_id),
 
                                 CONSTRAINT fk_answer_attempt
                                     FOREIGN KEY (attempt_id)
@@ -150,10 +184,16 @@ CREATE TABLE student_answer (
 
 -- 常用索引
 CREATE INDEX idx_course_teacher_id ON course(teacher_id);
+CREATE INDEX idx_enrollment_course_id ON course_enrollment(course_id);
+CREATE INDEX idx_enrollment_student_id ON course_enrollment(student_id);
+CREATE INDEX idx_enrollment_status ON course_enrollment(status);
 CREATE INDEX idx_material_course_id ON material(course_id);
 CREATE INDEX idx_quiz_course_id ON quiz(course_id);
 CREATE INDEX idx_question_quiz_id ON question(quiz_id);
+CREATE INDEX idx_question_type ON question(question_type);
 CREATE INDEX idx_attempt_quiz_id ON quiz_attempt(quiz_id);
 CREATE INDEX idx_attempt_student_id ON quiz_attempt(student_id);
+CREATE INDEX idx_attempt_status ON quiz_attempt(status);
 CREATE INDEX idx_answer_attempt_id ON student_answer(attempt_id);
 CREATE INDEX idx_answer_question_id ON student_answer(question_id);
+CREATE INDEX idx_answer_status ON student_answer(answer_status);

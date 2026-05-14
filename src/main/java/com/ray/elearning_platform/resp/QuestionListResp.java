@@ -13,7 +13,11 @@ public class QuestionListResp {
 
     private Integer quizId; // 测验ID
 
+    private String questionType; // 题型
+
     private String questionText; // 题干
+
+    private String questionImage; // 题干图片地址
 
     private String optionA; // 选项A
 
@@ -24,6 +28,10 @@ public class QuestionListResp {
     private String optionD; // 选项D
 
     private String correctOption; // 正确答案，学生端返回时应隐藏
+
+    private String referenceAnswer; // 填空题或解答题参考答案，学生端提交或截止后返回
+
+    private String explanation; // 题目解析，学生端提交或截止后返回
 
     private Integer marks; // 分值
 

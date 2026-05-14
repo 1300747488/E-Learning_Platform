@@ -25,6 +25,10 @@ public class QuizAttempt {
 
     private Integer wrongCount; // 答错题数
 
+    private String status; // 作答状态：IN_PROGRESS / SUBMITTED
+
+    private LocalDateTime startedAt; // 开始作答时间
+
     private LocalDateTime submittedAt; // 提交时间
 
     private Integer durationSeconds; // 答题用时，单位秒

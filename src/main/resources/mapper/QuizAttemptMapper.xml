@@ -14,6 +14,8 @@
         <result property="totalMarks" column="total_marks"/>
         <result property="correctCount" column="correct_count"/>
         <result property="wrongCount" column="wrong_count"/>
+        <result property="status" column="status"/>
+        <result property="startedAt" column="started_at"/>
         <result property="submittedAt" column="submitted_at"/>
         <result property="durationSeconds" column="duration_seconds"/>
     </resultMap>
@@ -30,6 +32,8 @@
         total_marks,
         correct_count,
         wrong_count,
+        status,
+        started_at,
         submitted_at,
         duration_seconds
         )
@@ -40,10 +44,35 @@
         #{totalMarks},
         #{correctCount},
         #{wrongCount},
+        #{status},
+        #{startedAt},
         #{submittedAt},
         #{durationSeconds}
         )
     </insert>
+
+    <!-- 修改测验提交记录，用于保存作答进度或提交评分结果 -->
+    <update id="updateAttempt" parameterType="com.ray.elearning_platform.entity.QuizAttempt">
+        UPDATE quiz_attempt
+        SET
+        score = #{score},
+        total_marks = #{totalMarks},
+        correct_count = #{correctCount},
+        wrong_count = #{wrongCount},
+        status = #{status},
+        submitted_at = #{submittedAt},
+        duration_seconds = #{durationSeconds}
+        WHERE attempt_id = #{attemptId}
+    </update>
+
+    <!-- 修改作答状态，例如作答中改为已提交 -->
+    <update id="updateStatus">
+        UPDATE quiz_attempt
+        SET
+        status = #{status},
+        submitted_at = CASE WHEN #{status} = 'SUBMITTED' THEN NOW() ELSE submitted_at END
+        WHERE attempt_id = #{attemptId}
+    </update>
 
     <!-- 根据提交记录ID查询提交记录实体 -->
     <select id="selectById" resultMap="QuizAttemptResultMap">
@@ -55,10 +84,33 @@
         total_marks,
         correct_count,
         wrong_count,
+        status,
+        started_at,
         submitted_at,
         duration_seconds
         FROM quiz_attempt
         WHERE attempt_id = #{attemptId}
+        LIMIT 1
+    </select>
+
+    <!-- 根据测验ID和学生ID查询作答记录，用于回显作答进度 -->
+    <select id="selectByQuizAndStudent" resultMap="QuizAttemptResultMap">
+        SELECT
+        attempt_id,
+        quiz_id,
+        student_id,
+        score,
+        total_marks,
+        correct_count,
+        wrong_count,
+        status,
+        started_at,
+        submitted_at,
+        duration_seconds
+        FROM quiz_attempt
+        WHERE quiz_id = #{quizId}
+        AND student_id = #{studentId}
+        ORDER BY attempt_id DESC
         LIMIT 1
     </select>
 
@@ -74,6 +126,8 @@
         qa.total_marks,
         qa.correct_count,
         qa.wrong_count,
+        qa.status,
+        qa.started_at,
         qa.submitted_at,
         qa.duration_seconds
         FROM quiz_attempt qa
@@ -93,6 +147,7 @@
         c.title AS course_title,
         qa.score,
         qa.total_marks,
+        qa.status,
         qa.submitted_at,
         qa.duration_seconds
         FROM quiz_attempt qa
@@ -112,6 +167,8 @@
         total_marks,
         correct_count,
         wrong_count,
+        status,
+        started_at,
         submitted_at,
         duration_seconds
         FROM quiz_attempt

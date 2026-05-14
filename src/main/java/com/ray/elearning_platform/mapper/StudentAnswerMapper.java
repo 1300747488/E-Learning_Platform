@@ -10,7 +10,16 @@ public interface StudentAnswerMapper {
 
     int insertStudentAnswer(StudentAnswer studentAnswer); // 新增学生答案
 
+    int updateStudentAnswer(StudentAnswer studentAnswer); // 修改学生答案
+
+    int upsertStudentAnswer(StudentAnswer studentAnswer); // 保存或更新学生答案
+
     int batchInsertStudentAnswer(@Param("answerList") List<StudentAnswer> answerList); // 批量保存学生答案
+
+    int batchUpsertStudentAnswer(@Param("answerList") List<StudentAnswer> answerList); // 批量保存或更新学生答案
+
+    StudentAnswer selectByAttemptAndQuestion(@Param("attemptId") Integer attemptId,
+                                             @Param("questionId") Integer questionId); // 根据提交记录ID和题目ID查询答案
 
     List<StudentAnswer> selectByAttemptId(@Param("attemptId") Integer attemptId); // 根据提交记录ID查询答案
 

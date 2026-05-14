@@ -11,6 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 public class QuizSubmitReq {
 
+    private Integer attemptId; // 作答记录ID
+
     private Integer quizId; // 测验ID
 
     private Integer studentId; // 学生ID

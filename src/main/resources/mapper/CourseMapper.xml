@@ -99,9 +99,58 @@
         c.teacher_id,
         a.full_name AS teacher_name,
         c.status,
-        c.created_at
+        c.created_at,
+        (
+        SELECT COUNT(*)
+        FROM course_enrollment ce
+        WHERE ce.course_id = c.course_id
+        AND ce.status = 'ACTIVE'
+        ) AS student_count,
+        0 AS joined
         FROM course c
         LEFT JOIN account a ON c.teacher_id = a.account_id
+        WHERE 1 = 1
+
+        <if test="category != null and category != ''">
+            AND c.category = #{category}
+        </if>
+
+        <if test="keyword != null and keyword != ''">
+            AND (
+            c.title LIKE CONCAT('%', #{keyword}, '%')
+            OR c.description LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+
+        ORDER BY c.created_at DESC
+    </select>
+
+    <!-- 学生端查询课程列表，包含当前学生是否已加入 -->
+    <select id="selectCourseListForStudent" resultType="com.ray.elearning_platform.resp.CourseListResp">
+        SELECT
+        c.course_id,
+        c.title,
+        c.category,
+        c.teacher_id,
+        a.full_name AS teacher_name,
+        c.status,
+        c.created_at,
+        (
+        SELECT COUNT(*)
+        FROM course_enrollment ce_count
+        WHERE ce_count.course_id = c.course_id
+        AND ce_count.status = 'ACTIVE'
+        ) AS student_count,
+        CASE
+        WHEN ce.enrollment_id IS NULL THEN 0
+        ELSE 1
+        END AS joined
+        FROM course c
+        LEFT JOIN account a ON c.teacher_id = a.account_id
+        LEFT JOIN course_enrollment ce
+        ON ce.course_id = c.course_id
+        AND ce.student_id = #{studentId}
+        AND ce.status = 'ACTIVE'
         WHERE 1 = 1
 
         <if test="category != null and category != ''">

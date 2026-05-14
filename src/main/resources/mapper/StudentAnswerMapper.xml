@@ -11,6 +11,9 @@
         <result property="attemptId" column="attempt_id"/>
         <result property="questionId" column="question_id"/>
         <result property="selectedOption" column="selected_option"/>
+        <result property="answerText" column="answer_text"/>
+        <result property="answerImage" column="answer_image"/>
+        <result property="answerStatus" column="answer_status"/>
         <result property="isCorrect" column="is_correct"/>
         <result property="awardedMarks" column="awarded_marks"/>
     </resultMap>
@@ -24,6 +27,9 @@
         attempt_id,
         question_id,
         selected_option,
+        answer_text,
+        answer_image,
+        answer_status,
         is_correct,
         awarded_marks
         )
@@ -31,9 +37,56 @@
         #{attemptId},
         #{questionId},
         #{selectedOption},
+        #{answerText},
+        #{answerImage},
+        #{answerStatus},
         #{isCorrect},
         #{awardedMarks}
         )
+    </insert>
+
+    <!-- 修改单条学生答案记录，用于作答中保存答案或提交后写入评分结果 -->
+    <update id="updateStudentAnswer" parameterType="com.ray.elearning_platform.entity.StudentAnswer">
+        UPDATE student_answer
+        SET
+        selected_option = #{selectedOption},
+        answer_text = #{answerText},
+        answer_image = #{answerImage},
+        answer_status = #{answerStatus},
+        is_correct = #{isCorrect},
+        awarded_marks = #{awardedMarks}
+        WHERE answer_id = #{answerId}
+    </update>
+
+    <!-- 保存或更新单条学生答案，支持作答中重复保存 -->
+    <insert id="upsertStudentAnswer" parameterType="com.ray.elearning_platform.entity.StudentAnswer">
+        INSERT INTO student_answer (
+        attempt_id,
+        question_id,
+        selected_option,
+        answer_text,
+        answer_image,
+        answer_status,
+        is_correct,
+        awarded_marks
+        )
+        VALUES (
+        #{attemptId},
+        #{questionId},
+        #{selectedOption},
+        #{answerText},
+        #{answerImage},
+        #{answerStatus},
+        #{isCorrect},
+        #{awardedMarks}
+        )
+        ON DUPLICATE KEY UPDATE
+        selected_option = VALUES(selected_option),
+        answer_text = VALUES(answer_text),
+        answer_image = VALUES(answer_image),
+        answer_status = VALUES(answer_status),
+        is_correct = VALUES(is_correct),
+        awarded_marks = VALUES(awarded_marks)
     </insert>
 
     <!-- 批量保存学生答案记录，提高提交测验时的插入效率 -->
@@ -42,6 +95,9 @@
         attempt_id,
         question_id,
         selected_option,
+        answer_text,
+        answer_image,
+        answer_status,
         is_correct,
         awarded_marks
         )
@@ -51,11 +107,66 @@
             #{item.attemptId},
             #{item.questionId},
             #{item.selectedOption},
+            #{item.answerText},
+            #{item.answerImage},
+            #{item.answerStatus},
             #{item.isCorrect},
             #{item.awardedMarks}
             )
         </foreach>
     </insert>
+
+    <!-- 批量保存或更新学生答案记录，支持作答中自动保存 -->
+    <insert id="batchUpsertStudentAnswer">
+        INSERT INTO student_answer (
+        attempt_id,
+        question_id,
+        selected_option,
+        answer_text,
+        answer_image,
+        answer_status,
+        is_correct,
+        awarded_marks
+        )
+        VALUES
+        <foreach collection="answerList" item="item" separator=",">
+            (
+            #{item.attemptId},
+            #{item.questionId},
+            #{item.selectedOption},
+            #{item.answerText},
+            #{item.answerImage},
+            #{item.answerStatus},
+            #{item.isCorrect},
+            #{item.awardedMarks}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        selected_option = VALUES(selected_option),
+        answer_text = VALUES(answer_text),
+        answer_image = VALUES(answer_image),
+        answer_status = VALUES(answer_status),
+        is_correct = VALUES(is_correct),
+        awarded_marks = VALUES(awarded_marks)
+    </insert>
+
+    <!-- 根据提交记录ID和题目ID查询学生答案 -->
+    <select id="selectByAttemptAndQuestion" resultMap="StudentAnswerResultMap">
+        SELECT
+        answer_id,
+        attempt_id,
+        question_id,
+        selected_option,
+        answer_text,
+        answer_image,
+        answer_status,
+        is_correct,
+        awarded_marks
+        FROM student_answer
+        WHERE attempt_id = #{attemptId}
+        AND question_id = #{questionId}
+        LIMIT 1
+    </select>
 
     <!-- 根据提交记录ID查询学生所有答题详情 -->
     <select id="selectByAttemptId" resultMap="StudentAnswerResultMap">
@@ -64,6 +175,9 @@
         attempt_id,
         question_id,
         selected_option,
+        answer_text,
+        answer_image,
+        answer_status,
         is_correct,
         awarded_marks
         FROM student_answer
@@ -71,20 +185,34 @@
         ORDER BY answer_id ASC
     </select>
 
-    <!-- 查询测验结果中的每道题详情，包括题干、学生答案、正确答案和得分 -->
+    <!-- 查询测验结果中的每道题详情，包括未作答题目、题干、学生答案、正确答案、解析和得分 -->
     <select id="selectAnswerResultByAttemptId"
             resultType="com.ray.elearning_platform.resp.QuizResultResp$AnswerResult">
         SELECT
         q.question_id,
+        q.question_type,
         q.question_text,
+        q.question_image,
+        q.option_a,
+        q.option_b,
+        q.option_c,
+        q.option_d,
         sa.selected_option,
+        sa.answer_text,
+        sa.answer_image,
+        COALESCE(sa.answer_status, 'UNANSWERED') AS answer_status,
         q.correct_option,
-        sa.is_correct,
-        sa.awarded_marks,
+        q.reference_answer,
+        q.explanation,
+        COALESCE(sa.is_correct, 0) AS is_correct,
+        COALESCE(sa.awarded_marks, 0) AS awarded_marks,
         q.marks
-        FROM student_answer sa
-        LEFT JOIN question q ON sa.question_id = q.question_id
-        WHERE sa.attempt_id = #{attemptId}
+        FROM question q
+        INNER JOIN quiz_attempt qa ON q.quiz_id = qa.quiz_id
+        LEFT JOIN student_answer sa
+        ON sa.question_id = q.question_id
+        AND sa.attempt_id = qa.attempt_id
+        WHERE qa.attempt_id = #{attemptId}
         ORDER BY q.question_id ASC
     </select>
 

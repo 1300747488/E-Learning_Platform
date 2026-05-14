@@ -17,6 +17,12 @@ public class StudentAnswer {
 
     private String selectedOption; // 学生选择的答案：A / B / C / D
 
+    private String answerText; // 填空题或解答题答案
+
+    private String answerImage; // 解答题图片答案地址
+
+    private String answerStatus; // 作答状态：ANSWERED / UNANSWERED
+
     private Boolean isCorrect; // 是否答对
 
     private Integer awardedMarks; // 本题得分

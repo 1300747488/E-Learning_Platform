@@ -28,8 +28,10 @@ public interface QuestionMapper {
     // 教师端查询题目列表，包含正确答案
     List<QuestionListResp> selectQuestionList(@Param("quizId") Integer quizId);
 
-    // 学生端查询题目列表，不包含正确答案
-    List<StudentQuestionResp> selectStudentQuestionList(@Param("quizId") Integer quizId);
+    // 学生端查询题目列表，作答中回显已保存答案，提交或截止后显示正确答案和解析
+    List<StudentQuestionResp> selectStudentQuestionList(@Param("quizId") Integer quizId,
+                                                        @Param("attemptId") Integer attemptId,
+                                                        @Param("showAnswer") Boolean showAnswer);
 
     // 根据测验ID查询题目实体，自动评分时使用
     List<Question> selectByQuizId(@Param("quizId") Integer quizId);

@@ -25,6 +25,8 @@ public class QuizHistoryResp {
 
     private Integer totalMarks; // 测验总分
 
+    private String status; // 作答状态
+
     private LocalDateTime submittedAt; // 提交时间
 
     private Integer durationSeconds; // 答题用时，单位秒

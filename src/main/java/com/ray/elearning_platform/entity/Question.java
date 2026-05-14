@@ -15,7 +15,11 @@ public class Question {
 
     private Integer quizId; // 测验ID，关联 quiz.quiz_id
 
+    private String questionType; // 题型：SINGLE_CHOICE / FILL_BLANK / SHORT_ANSWER
+
     private String questionText; // 题干
+
+    private String questionImage; // 题干图片地址
 
     private String optionA; // 选项A
 
@@ -26,6 +30,10 @@ public class Question {
     private String optionD; // 选项D
 
     private String correctOption; // 正确答案：A / B / C / D
+
+    private String referenceAnswer; // 填空题或解答题参考答案
+
+    private String explanation; // 题目解析
 
     private Integer marks; // 题目分值
 
