@@ -9,6 +9,11 @@
 
     <display-name>E-Learning_Platform</display-name>
 
+    <!-- 默认首页，确保访问应用根路径时可以直接进入 index.jsp -->
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
     <!-- Spring 容器配置文件 -->
     <context-param>
         <param-name>contextConfigLocation</param-name>

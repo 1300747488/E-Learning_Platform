@@ -46,7 +46,7 @@ public class CourseController {
      * @return 默认成功响应
      */
     @DeleteMapping("/{courseId}")
-    public JsonData deleteCourse(@PathVariable Integer courseId) {
+    public JsonData deleteCourse(@PathVariable("courseId") Integer courseId) {
         return JsonData.buildSuccess();
     }
 
@@ -57,7 +57,7 @@ public class CourseController {
      * @return 默认成功响应，后续开发时返回 CourseDetailResp
      */
     @GetMapping("/{courseId}")
-    public JsonData detail(@PathVariable Integer courseId) {
+    public JsonData detail(@PathVariable("courseId") Integer courseId) {
         return JsonData.buildSuccess();
     }
 
@@ -69,8 +69,8 @@ public class CourseController {
      * @return 默认成功响应，后续开发时返回 CourseListResp 列表
      */
     @GetMapping
-    public JsonData listCourses(@RequestParam(required = false) String category,
-                                @RequestParam(required = false) String keyword) {
+    public JsonData listCourses(@RequestParam(value = "category", required = false) String category,
+                                @RequestParam(value = "keyword", required = false) String keyword) {
         return JsonData.buildSuccess();
     }
 
@@ -83,9 +83,9 @@ public class CourseController {
      * @return 默认成功响应，后续开发时返回 CourseListResp 列表
      */
     @GetMapping("/student-list")
-    public JsonData listCoursesForStudent(@RequestParam Integer studentId,
-                                          @RequestParam(required = false) String category,
-                                          @RequestParam(required = false) String keyword) {
+    public JsonData listCoursesForStudent(@RequestParam("studentId") Integer studentId,
+                                          @RequestParam(value = "category", required = false) String category,
+                                          @RequestParam(value = "keyword", required = false) String keyword) {
         return JsonData.buildSuccess();
     }
 
@@ -96,7 +96,7 @@ public class CourseController {
      * @return 默认成功响应，后续开发时返回课程列表
      */
     @GetMapping("/teacher/{teacherId}")
-    public JsonData listTeacherCourses(@PathVariable Integer teacherId) {
+    public JsonData listTeacherCourses(@PathVariable("teacherId") Integer teacherId) {
         return JsonData.buildSuccess();
     }
 
@@ -108,8 +108,8 @@ public class CourseController {
      * @return 默认成功响应
      */
     @PostMapping("/{courseId}/students/{studentId}/join")
-    public JsonData joinCourse(@PathVariable Integer courseId,
-                               @PathVariable Integer studentId) {
+    public JsonData joinCourse(@PathVariable("courseId") Integer courseId,
+                               @PathVariable("studentId") Integer studentId) {
         return JsonData.buildSuccess();
     }
 
@@ -121,8 +121,8 @@ public class CourseController {
      * @return 默认成功响应
      */
     @PostMapping("/{courseId}/students/{studentId}/leave")
-    public JsonData leaveCourse(@PathVariable Integer courseId,
-                                @PathVariable Integer studentId) {
+    public JsonData leaveCourse(@PathVariable("courseId") Integer courseId,
+                                @PathVariable("studentId") Integer studentId) {
         return JsonData.buildSuccess();
     }
 
@@ -134,8 +134,8 @@ public class CourseController {
      * @return 默认成功响应，后续开发时返回 CourseStudentResp 列表
      */
     @GetMapping("/{courseId}/students")
-    public JsonData listCourseStudents(@PathVariable Integer courseId,
-                                       @RequestParam(required = false) String status) {
+    public JsonData listCourseStudents(@PathVariable("courseId") Integer courseId,
+                                       @RequestParam(value = "status", required = false) String status) {
         return JsonData.buildSuccess();
     }
 
@@ -147,8 +147,8 @@ public class CourseController {
      * @return 默认成功响应，后续开发时返回 StudentCourseResp 列表
      */
     @GetMapping("/by-student/{studentId}")
-    public JsonData listStudentCourses(@PathVariable Integer studentId,
-                                       @RequestParam(required = false) String status) {
+    public JsonData listStudentCourses(@PathVariable("studentId") Integer studentId,
+                                       @RequestParam(value = "status", required = false) String status) {
         return JsonData.buildSuccess();
     }
 }

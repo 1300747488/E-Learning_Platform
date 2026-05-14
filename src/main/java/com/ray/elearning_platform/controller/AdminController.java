@@ -20,8 +20,8 @@ public class AdminController {
      * @return 默认成功响应，后续开发时返回 UserListResp 列表
      */
     @GetMapping("/users")
-    public JsonData listUsers(@RequestParam(required = false) String role,
-                              @RequestParam(required = false) String keyword) {
+    public JsonData listUsers(@RequestParam(value = "role", required = false) String role,
+                              @RequestParam(value = "keyword", required = false) String keyword) {
         return JsonData.buildSuccess();
     }
 
@@ -33,8 +33,8 @@ public class AdminController {
      * @return 默认成功响应
      */
     @PutMapping("/users/{accountId}/status")
-    public JsonData updateUserStatus(@PathVariable Integer accountId,
-                                     @RequestParam String status) {
+    public JsonData updateUserStatus(@PathVariable("accountId") Integer accountId,
+                                     @RequestParam("status") String status) {
         return JsonData.buildSuccess();
     }
 
@@ -46,8 +46,8 @@ public class AdminController {
      * @return 默认成功响应，后续开发时返回 CourseListResp 列表
      */
     @GetMapping("/courses")
-    public JsonData listCourses(@RequestParam(required = false) String category,
-                                @RequestParam(required = false) String keyword) {
+    public JsonData listCourses(@RequestParam(value = "category", required = false) String category,
+                                @RequestParam(value = "keyword", required = false) String keyword) {
         return JsonData.buildSuccess();
     }
 }

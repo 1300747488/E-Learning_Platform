@@ -22,9 +22,9 @@ public class OssController {
      * @return 默认成功响应，后续开发时返回 OssUploadResp
      */
     @PostMapping("/upload")
-    public JsonData upload(@RequestParam MultipartFile file,
-                           @RequestParam String bizType,
-                           @RequestParam Integer uploaderId) {
+    public JsonData upload(@RequestParam("file") MultipartFile file,
+                           @RequestParam("bizType") String bizType,
+                           @RequestParam("uploaderId") Integer uploaderId) {
         return JsonData.buildSuccess();
     }
 
@@ -35,7 +35,7 @@ public class OssController {
      * @return 默认成功响应
      */
     @DeleteMapping("/file")
-    public JsonData delete(@RequestParam String objectKey) {
+    public JsonData delete(@RequestParam("objectKey") String objectKey) {
         return JsonData.buildSuccess();
     }
 
@@ -46,7 +46,7 @@ public class OssController {
      * @return 默认成功响应，后续开发时返回文件访问地址
      */
     @GetMapping("/url")
-    public JsonData getFileUrl(@RequestParam String objectKey) {
+    public JsonData getFileUrl(@RequestParam("objectKey") String objectKey) {
         return JsonData.buildSuccess();
     }
 }

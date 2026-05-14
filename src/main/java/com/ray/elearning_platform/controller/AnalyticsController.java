@@ -54,8 +54,8 @@ public class AnalyticsController {
      * @return 默认成功响应，后续开发时返回 LeaderboardResp 列表
      */
     @GetMapping("/leaderboard")
-    public JsonData leaderboard(@RequestParam(required = false) Integer courseId,
-                                @RequestParam(required = false) Integer quizId) {
+    public JsonData leaderboard(@RequestParam(value = "courseId", required = false) Integer courseId,
+                                @RequestParam(value = "quizId", required = false) Integer quizId) {
         return JsonData.buildSuccess();
     }
 

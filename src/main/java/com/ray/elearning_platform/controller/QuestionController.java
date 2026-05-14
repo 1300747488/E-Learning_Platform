@@ -46,7 +46,7 @@ public class QuestionController {
      * @return 默认成功响应
      */
     @DeleteMapping("/{questionId}")
-    public JsonData deleteQuestion(@PathVariable Integer questionId) {
+    public JsonData deleteQuestion(@PathVariable("questionId") Integer questionId) {
         return JsonData.buildSuccess();
     }
 
@@ -57,7 +57,7 @@ public class QuestionController {
      * @return 默认成功响应，后续开发时返回 QuestionDetailResp
      */
     @GetMapping("/{questionId}")
-    public JsonData detail(@PathVariable Integer questionId) {
+    public JsonData detail(@PathVariable("questionId") Integer questionId) {
         return JsonData.buildSuccess();
     }
 
@@ -68,7 +68,7 @@ public class QuestionController {
      * @return 默认成功响应，后续开发时返回 QuestionListResp 列表
      */
     @GetMapping("/teacher-list")
-    public JsonData listForTeacher(@RequestParam Integer quizId) {
+    public JsonData listForTeacher(@RequestParam("quizId") Integer quizId) {
         return JsonData.buildSuccess();
     }
 
@@ -81,9 +81,9 @@ public class QuestionController {
      * @return 默认成功响应，后续开发时返回 StudentQuestionResp 列表
      */
     @GetMapping("/student-list")
-    public JsonData listForStudent(@RequestParam Integer quizId,
-                                   @RequestParam(required = false) Integer attemptId,
-                                   @RequestParam(defaultValue = "false") Boolean showAnswer) {
+    public JsonData listForStudent(@RequestParam("quizId") Integer quizId,
+                                   @RequestParam(value = "attemptId", required = false) Integer attemptId,
+                                   @RequestParam(value = "showAnswer", defaultValue = "false") Boolean showAnswer) {
         return JsonData.buildSuccess();
     }
 }

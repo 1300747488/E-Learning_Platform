@@ -23,8 +23,8 @@ public class AttemptController {
      * @return 默认成功响应，后续开发时返回作答记录和题目列表
      */
     @PostMapping("/start")
-    public JsonData startOrContinue(@RequestParam Integer quizId,
-                                    @RequestParam Integer studentId) {
+    public JsonData startOrContinue(@RequestParam("quizId") Integer quizId,
+                                    @RequestParam("studentId") Integer studentId) {
         return JsonData.buildSuccess();
     }
 
@@ -57,7 +57,7 @@ public class AttemptController {
      * @return 默认成功响应，后续开发时返回 QuizResultResp
      */
     @GetMapping("/{attemptId}/result")
-    public JsonData result(@PathVariable Integer attemptId) {
+    public JsonData result(@PathVariable("attemptId") Integer attemptId) {
         return JsonData.buildSuccess();
     }
 
@@ -68,7 +68,7 @@ public class AttemptController {
      * @return 默认成功响应，后续开发时返回 QuizHistoryResp 列表
      */
     @GetMapping("/history")
-    public JsonData history(@RequestParam Integer studentId) {
+    public JsonData history(@RequestParam("studentId") Integer studentId) {
         return JsonData.buildSuccess();
     }
 }

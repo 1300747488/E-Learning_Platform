@@ -58,7 +58,7 @@ public class QuizController {
      * @return 默认成功响应
      */
     @DeleteMapping("/{quizId}")
-    public JsonData deleteQuiz(@PathVariable Integer quizId) {
+    public JsonData deleteQuiz(@PathVariable("quizId") Integer quizId) {
         return JsonData.buildSuccess();
     }
 
@@ -69,7 +69,7 @@ public class QuizController {
      * @return 默认成功响应，后续开发时返回 QuizDetailResp
      */
     @GetMapping("/{quizId}")
-    public JsonData detail(@PathVariable Integer quizId) {
+    public JsonData detail(@PathVariable("quizId") Integer quizId) {
         return JsonData.buildSuccess();
     }
 
@@ -81,8 +81,8 @@ public class QuizController {
      * @return 默认成功响应，后续开发时返回 QuizListResp 列表
      */
     @GetMapping
-    public JsonData list(@RequestParam(required = false) Integer courseId,
-                         @RequestParam(required = false) String status) {
+    public JsonData list(@RequestParam(value = "courseId", required = false) Integer courseId,
+                         @RequestParam(value = "status", required = false) String status) {
         return JsonData.buildSuccess();
     }
 }

@@ -34,7 +34,7 @@ public class MaterialController {
      * @return 默认成功响应
      */
     @DeleteMapping("/{materialId}")
-    public JsonData delete(@PathVariable Integer materialId) {
+    public JsonData delete(@PathVariable("materialId") Integer materialId) {
         return JsonData.buildSuccess();
     }
 
@@ -45,7 +45,7 @@ public class MaterialController {
      * @return 默认成功响应，后续开发时返回 MaterialDetailResp
      */
     @GetMapping("/{materialId}")
-    public JsonData detail(@PathVariable Integer materialId) {
+    public JsonData detail(@PathVariable("materialId") Integer materialId) {
         return JsonData.buildSuccess();
     }
 
