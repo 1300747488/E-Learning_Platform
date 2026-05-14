@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ray.elearning_platform.mapper.CourseEnrollmentMapper">
+
+    <!-- CourseEnrollment 实体映射，对应 course_enrollment 表 -->
+    <resultMap id="CourseEnrollmentResultMap" type="com.ray.elearning_platform.entity.CourseEnrollment">
+        <id property="enrollmentId" column="enrollment_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="status" column="status"/>
+        <result property="enrolledAt" column="enrolled_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 新增选课记录，学生加入课程时使用 -->
+    <insert id="insertEnrollment"
+            parameterType="com.ray.elearning_platform.entity.CourseEnrollment"
+            useGeneratedKeys="true"
+            keyProperty="enrollmentId">
+        INSERT INTO course_enrollment (
+        course_id,
+        student_id,
+        status
+        )
+        VALUES (
+        #{courseId},
+        #{studentId},
+        #{status}
+        )
+    </insert>
+
+    <!-- 修改选课状态，例如学生退出课程或重新加入课程 -->
+    <update id="updateStatus">
+        UPDATE course_enrollment
+        SET
+        status = #{status},
+        updated_at = NOW()
+        WHERE course_id = #{courseId}
+        AND student_id = #{studentId}
+    </update>
+
+    <!-- 根据课程ID和学生ID查询选课记录，用于判断是否已加入课程 -->
+    <select id="selectByCourseAndStudent" resultMap="CourseEnrollmentResultMap">
+        SELECT
+        enrollment_id,
+        course_id,
+        student_id,
+        status,
+        enrolled_at,
+        updated_at
+        FROM course_enrollment
+        WHERE course_id = #{courseId}
+        AND student_id = #{studentId}
+        LIMIT 1
+    </select>
+
+    <!-- 查询课程下的学生列表，支持按选课状态筛选 -->
+    <select id="selectStudentsByCourseId" resultType="com.ray.elearning_platform.resp.CourseStudentResp">
+        SELECT
+        ce.enrollment_id,
+        ce.course_id,
+        ce.student_id,
+        a.username,
+        a.full_name,
+        a.email,
+        a.phone,
+        a.avatar,
+        ce.status,
+        ce.enrolled_at
+        FROM course_enrollment ce
+        INNER JOIN account a ON ce.student_id = a.account_id
+        WHERE ce.course_id = #{courseId}
+        AND a.role = 'STUDENT'
+
+        <if test="status != null and status != ''">
+            AND ce.status = #{status}
+        </if>
+
+        ORDER BY ce.enrolled_at DESC
+    </select>
+
+    <!-- 查询学生已加入的课程列表，支持按选课状态筛选 -->
+    <select id="selectCoursesByStudentId" resultType="com.ray.elearning_platform.resp.StudentCourseResp">
+        SELECT
+        ce.enrollment_id,
+        c.course_id,
+        c.title,
+        c.description,
+        c.category,
+        c.teacher_id,
+        t.full_name AS teacher_name,
+        c.status AS course_status,
+        ce.status AS enrollment_status,
+        ce.enrolled_at
+        FROM course_enrollment ce
+        INNER JOIN course c ON ce.course_id = c.course_id
+        LEFT JOIN account t ON c.teacher_id = t.account_id
+        WHERE ce.student_id = #{studentId}
+
+        <if test="status != null and status != ''">
+            AND ce.status = #{status}
+        </if>
+
+        ORDER BY ce.enrolled_at DESC
+    </select>
+
+    <!-- 统计课程下已加入的学生数量 -->
+    <select id="countActiveStudentsByCourseId" resultType="int">
+        SELECT COUNT(*)
+        FROM course_enrollment
+        WHERE course_id = #{courseId}
+        AND status = 'ACTIVE'
+    </select>
+
+</mapper>
