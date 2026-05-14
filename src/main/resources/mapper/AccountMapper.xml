@@ -110,6 +110,15 @@
         WHERE account_id = #{accountId}
     </update>
 
+    <!-- 修改密码密文 -->
+    <update id="updatePassword">
+        UPDATE account
+        SET
+        password = #{password},
+        updated_at = NOW()
+        WHERE account_id = #{accountId}
+    </update>
+
     <!-- 修改账户状态 -->
     <update id="updateStatus">
         UPDATE account

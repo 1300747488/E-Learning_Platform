@@ -15,7 +15,7 @@ public class Account {
 
     private String username; // 用户名
 
-    private String password; // 密码
+    private String password; // 密码密文，不能保存明文密码
 
     private String fullName; // 用户姓名
 

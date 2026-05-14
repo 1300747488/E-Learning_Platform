@@ -20,6 +20,10 @@ public interface AccountMapper {
     // 修改个人资料
     int updateProfile(Account account);
 
+    // 修改密码密文
+    int updatePassword(@Param("accountId") Integer accountId,
+                       @Param("password") String password);
+
     // 修改账户状态
     int updateStatus(@Param("accountId") Integer accountId,
                      @Param("status") String status);

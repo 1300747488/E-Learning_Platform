@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS account;
 CREATE TABLE account (
                          account_id INT PRIMARY KEY AUTO_INCREMENT COMMENT '账户ID',
                          username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
-                         password VARCHAR(100) NOT NULL COMMENT '密码',
+                         password VARCHAR(255) NOT NULL COMMENT '密码密文',
                          full_name VARCHAR(100) COMMENT '用户姓名',
                          email VARCHAR(100) COMMENT '邮箱',
                          phone VARCHAR(30) COMMENT '手机号',

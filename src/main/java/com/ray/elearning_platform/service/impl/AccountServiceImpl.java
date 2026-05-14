@@ -1,5 +1,6 @@
 package com.ray.elearning_platform.service.impl;
 
+import com.ray.elearning_platform.req.AccountChangePasswordReq;
 import com.ray.elearning_platform.req.AccountLoginReq;
 import com.ray.elearning_platform.req.AccountRegisterReq;
 import com.ray.elearning_platform.req.AccountUpdateProfileReq;
@@ -53,6 +54,19 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public JsonData updateProfile(AccountUpdateProfileReq req) {
+        return JsonData.buildSuccess();
+    }
+
+    /**
+     * 修改登录密码。
+     *
+     * @param req 修改密码请求体，必填；包含 accountId 账户ID、oldPassword 原密码、
+     *            newPassword 新密码和 confirmPassword 确认新密码；后续实现时需要先校验原密码，
+     *            再对新密码加密保存
+     * @return 默认成功响应；后续实现时返回密码修改结果
+     */
+    @Override
+    public JsonData changePassword(AccountChangePasswordReq req) {
         return JsonData.buildSuccess();
     }
 

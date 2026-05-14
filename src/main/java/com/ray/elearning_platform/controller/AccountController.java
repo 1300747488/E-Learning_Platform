@@ -1,5 +1,6 @@
 package com.ray.elearning_platform.controller;
 
+import com.ray.elearning_platform.req.AccountChangePasswordReq;
 import com.ray.elearning_platform.req.AccountLoginReq;
 import com.ray.elearning_platform.req.AccountRegisterReq;
 import com.ray.elearning_platform.req.AccountUpdateProfileReq;
@@ -57,6 +58,18 @@ public class AccountController {
      */
     @PutMapping("/profile")
     public JsonData updateProfile(@RequestBody AccountUpdateProfileReq req) {
+        return JsonData.buildSuccess();
+    }
+
+    /**
+     * 修改登录密码接口。
+     *
+     * @param req 修改密码请求体，包含 accountId 账户ID、oldPassword 原密码、
+     *            newPassword 新密码和 confirmPassword 确认新密码
+     * @return 默认成功响应，后续开发时返回密码修改结果
+     */
+    @PutMapping("/password")
+    public JsonData changePassword(@RequestBody AccountChangePasswordReq req) {
         return JsonData.buildSuccess();
     }
 

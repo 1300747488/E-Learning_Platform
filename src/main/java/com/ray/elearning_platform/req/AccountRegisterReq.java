@@ -11,7 +11,7 @@ public class AccountRegisterReq {
 
     private String username; // 用户名
 
-    private String password; // 密码
+    private String password; // 密码，注册时前端提交的明文密码，后续实现时需要加密后保存
 
     private String confirmPassword; // 确认密码
 

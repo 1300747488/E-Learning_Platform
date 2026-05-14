@@ -1,5 +1,6 @@
 package com.ray.elearning_platform.service;
 
+import com.ray.elearning_platform.req.AccountChangePasswordReq;
 import com.ray.elearning_platform.req.AccountLoginReq;
 import com.ray.elearning_platform.req.AccountRegisterReq;
 import com.ray.elearning_platform.req.AccountUpdateProfileReq;
@@ -38,6 +39,14 @@ public interface AccountService {
      * @return 修改结果
      */
     JsonData updateProfile(AccountUpdateProfileReq req);
+
+    /**
+     * 修改登录密码。
+     *
+     * @param req 修改密码请求体，包含账户ID、原密码、新密码和确认新密码
+     * @return 修改结果
+     */
+    JsonData changePassword(AccountChangePasswordReq req);
 
     /**
      * 用户登出。
