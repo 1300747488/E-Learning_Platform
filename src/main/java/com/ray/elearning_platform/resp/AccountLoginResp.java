@@ -24,4 +24,8 @@ public class AccountLoginResp {
     private String role; // 用户角色：ADMIN / TEACHER / STUDENT
 
     private String status; // 账号状态
+
+    private String token; // 登录令牌
+
+    private Long expireAt; // 令牌过期时间戳，单位毫秒
 }

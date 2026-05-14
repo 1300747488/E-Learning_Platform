@@ -18,6 +18,9 @@
     <!-- 开启 Spring MVC 注解支持，包括 @RequestMapping、@RequestBody、@ResponseBody -->
     <mvc:annotation-driven/>
 
+    <!-- 文件上传解析器，用于接收 MultipartFile，后续可接入阿里云 OSS 上传实现 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"/>
+
     <!-- 放行静态资源 -->
     <mvc:resources mapping="/static/**" location="/static/"/>
 

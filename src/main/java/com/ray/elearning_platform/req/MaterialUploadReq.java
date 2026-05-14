@@ -15,7 +15,7 @@ public class MaterialUploadReq {
 
     private String materialType; // 资料类型：PDF / VIDEO / NOTE / PPT / OTHER
 
-    private String filePath; // 文件路径
+    private String filePath; // 文件路径或 OSS 文件访问地址
 
     private Long fileSize; // 文件大小，单位字节
 

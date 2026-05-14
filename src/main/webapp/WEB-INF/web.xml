@@ -32,6 +32,13 @@
         </init-param>
 
         <load-on-startup>1</load-on-startup>
+
+        <!-- 文件上传配置，用于接收 multipart/form-data 请求，后续上传到阿里云 OSS -->
+        <multipart-config>
+            <max-file-size>104857600</max-file-size>
+            <max-request-size>104857600</max-request-size>
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
     </servlet>
 
     <!-- 拦截所有请求，交给 Spring MVC 处理 -->
