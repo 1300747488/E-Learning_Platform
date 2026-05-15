@@ -4,7 +4,9 @@ import com.ray.elearning_platform.req.AccountChangePasswordReq;
 import com.ray.elearning_platform.req.AccountLoginReq;
 import com.ray.elearning_platform.req.AccountRegisterReq;
 import com.ray.elearning_platform.req.AccountUpdateProfileReq;
+import com.ray.elearning_platform.service.AccountService;
 import com.ray.elearning_platform.util.JsonData;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/account")
 public class AccountController {
 
+    @Autowired
+    private AccountService accountService;
+
     /**
      * 用户注册接口。
      *
@@ -25,6 +30,7 @@ public class AccountController {
      */
     @PostMapping("/register")
     public JsonData register(@RequestBody AccountRegisterReq req) {
+        accountService.register(req);
         return JsonData.buildSuccess();
     }
 

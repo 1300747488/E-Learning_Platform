@@ -1434,7 +1434,7 @@ Authorization: Bearer token
 
 ## 12. Service 接口说明
 
-当前 Service 层全部为接口定义，ServiceImpl 只返回 `JsonData.buildSuccess()`，不写业务逻辑。
+当前 Service 层全部为接口定义，ServiceImpl 只返回业务默认值（`null`、空列表、空字符串或 `void`），不写业务逻辑。`JsonData` 只用于 Controller 层统一包装接口响应。
 
 | Service | 主要职责 |
 | --- | --- |

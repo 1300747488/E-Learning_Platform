@@ -1,8 +1,13 @@
 package com.ray.elearning_platform.service.impl;
 
+import com.ray.elearning_platform.entity.CourseEnrollment;
+import com.ray.elearning_platform.resp.CourseStudentResp;
+import com.ray.elearning_platform.resp.StudentCourseResp;
 import com.ray.elearning_platform.service.CourseEnrollmentService;
-import com.ray.elearning_platform.util.JsonData;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
@@ -12,11 +17,11 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
      *
      * @param courseId 课程ID，必填；学生要加入的课程
      * @param studentId 学生ID，必填；必须是 STUDENT 角色账户
-     * @return 默认成功响应；后续实现时返回选课记录 CourseEnrollment
+     * @return 默认空选课记录；后续实现时返回 CourseEnrollment
      */
     @Override
-    public JsonData joinCourse(Integer courseId, Integer studentId) {
-        return JsonData.buildSuccess();
+    public CourseEnrollment joinCourse(Integer courseId, Integer studentId) {
+        return null;
     }
 
     /**
@@ -24,11 +29,10 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
      *
      * @param courseId 课程ID，必填；学生要退出的课程
      * @param studentId 学生ID，必填；当前学生账户ID
-     * @return 默认成功响应；后续实现时返回退出结果
      */
     @Override
-    public JsonData leaveCourse(Integer courseId, Integer studentId) {
-        return JsonData.buildSuccess();
+    public void leaveCourse(Integer courseId, Integer studentId) {
+
     }
 
     /**
@@ -36,11 +40,11 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
      *
      * @param courseId 课程ID，必填；用于查询该课程下的学生
      * @param status 选课状态，可为空；可选值 ACTIVE / LEFT，为空时查询全部状态
-     * @return 默认成功响应；后续实现时返回 CourseStudentResp 列表
+     * @return 默认空列表；后续实现时返回 CourseStudentResp 列表
      */
     @Override
-    public JsonData listCourseStudents(Integer courseId, String status) {
-        return JsonData.buildSuccess();
+    public List<CourseStudentResp> listCourseStudents(Integer courseId, String status) {
+        return Collections.emptyList();
     }
 
     /**
@@ -48,10 +52,10 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
      *
      * @param studentId 学生ID，必填；用于查询该学生加入过的课程
      * @param status 选课状态，可为空；可选值 ACTIVE / LEFT，为空时查询全部状态
-     * @return 默认成功响应；后续实现时返回 StudentCourseResp 列表
+     * @return 默认空列表；后续实现时返回 StudentCourseResp 列表
      */
     @Override
-    public JsonData listStudentCourses(Integer studentId, String status) {
-        return JsonData.buildSuccess();
+    public List<StudentCourseResp> listStudentCourses(Integer studentId, String status) {
+        return Collections.emptyList();
     }
 }

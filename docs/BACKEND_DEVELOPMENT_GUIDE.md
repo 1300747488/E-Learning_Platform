@@ -6,7 +6,7 @@
 
 - Controller 接口路径定义。
 - Service 接口定义。
-- ServiceImpl 默认实现类，当前只返回 `JsonData.buildSuccess()`。
+- ServiceImpl 默认实现类，当前只返回业务默认值（`null`、空列表、空字符串或 `void`）。
 - Req 请求体类。
 - Resp 响应体类。
 - Entity 实体类。
@@ -27,7 +27,7 @@
 - 权限控制。
 - 统一异常处理。
 
-所以现在的接口可以访问并返回默认成功，但功能还不能真正使用。
+所以现在的接口可以访问并由 Controller 返回默认成功，但功能还不能真正使用。
 
 完整后端最终应该形成这个调用链：
 

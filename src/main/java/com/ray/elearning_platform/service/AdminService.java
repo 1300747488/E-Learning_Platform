@@ -1,6 +1,9 @@
 package com.ray.elearning_platform.service;
 
-import com.ray.elearning_platform.util.JsonData;
+import com.ray.elearning_platform.resp.CourseListResp;
+import com.ray.elearning_platform.resp.UserListResp;
+
+import java.util.List;
 
 public interface AdminService {
 
@@ -9,18 +12,17 @@ public interface AdminService {
      *
      * @param role 用户角色，可为空
      * @param keyword 搜索关键词，可为空
-     * @return 用户列表，元素为 UserListResp
+     * @return 用户列表
      */
-    JsonData listUsers(String role, String keyword);
+    List<UserListResp> listUsers(String role, String keyword);
 
     /**
      * 修改账户状态。
      *
      * @param accountId 账户ID
      * @param status 目标状态：ACTIVE / DISABLED / DELETED
-     * @return 修改结果
      */
-    JsonData updateUserStatus(Integer accountId, String status);
+    void updateUserStatus(Integer accountId, String status);
 
     /**
      * 管理员查询课程列表。
@@ -29,5 +31,5 @@ public interface AdminService {
      * @param keyword 搜索关键词，可为空
      * @return 课程列表
      */
-    JsonData listCourses(String category, String keyword);
+    List<CourseListResp> listCourses(String category, String keyword);
 }
